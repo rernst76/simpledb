@@ -1,27 +1,14 @@
 package db
 
-import "github.com/HuKeping/rbtree"
-
-// Node to build our cntTree (implemented as rbtree)
-type cntNode struct {
-	val int
-	cnt int
-}
-
 type db struct {
-	cntTree rbtree.Rbtree
-	keyMap  map[string]int
-}
-
-// Less function required by Item interface in rbtree
-func (n cntNode) Less(than rbtree.Item) bool {
-	return n.val < than.(cntNode).val
+	cntMap map[int]int
+	keyMap map[string]int
 }
 
 // Create new db
 func New() *db {
 	var newdb db
-	newdb.cntTree = *rbtree.New()
+	newdb.cntMap = make(map[int]int)
 	newdb.keyMap = make(map[string]int)
 	return &newdb
 }
@@ -36,7 +23,7 @@ func (d *db) Get(key string) (int, error) {
 
 }
 
-// Unset a key value pair in the database, returns erro
+// Unset a key value pair in the database, returns error
 func (d *db) Unset(key string) error {
 
 }
