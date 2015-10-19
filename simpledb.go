@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"github.com/rernst76/simpledb/db"
 	"io"
 	"log"
 	"os"
@@ -170,7 +171,6 @@ func validateCmds(in chan []string) chan cmd {
 			default:
 				fmt.Printf("ERROR: %v is not a recognized command\n", c.command)
 			}
-
 		}
 		close(out)
 	}()
@@ -179,5 +179,13 @@ func validateCmds(in chan []string) chan cmd {
 
 // runCmds actually runs the commands.
 func runCmds(in chan cmd) chan string {
+	out := make(chan string)
+	var mydb db.Database
+	go func() {
+		for cmd := range in {
 
+		}
+		close(out)
+	}()
+	return out
 }
