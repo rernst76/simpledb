@@ -80,6 +80,8 @@ func getScannerLines(scanner *bufio.Scanner) chan []string {
 			cmd := strings.ToUpper(tokens[0])
 			if cmd == "HELP" {
 				printHelp()
+			} else if cmd == "END" {
+				break
 			} else {
 				out <- tokens
 			}
@@ -166,7 +168,7 @@ func validateCmds(in chan []string) chan cmd {
 				}
 
 			default:
-				fmt.Printf("ERROR: %v is not a recognized command\n", c.command, c.command)
+				fmt.Printf("ERROR: %v is not a recognized command\n", c.command)
 			}
 
 		}
@@ -175,8 +177,7 @@ func validateCmds(in chan []string) chan cmd {
 	return out
 }
 
-// runCmds actually runs the commands. Until an end is found the cmds are just
-// simulated on a local cache
-func runCmds(in chan cmd) {
+// runCmds actually runs the commands.
+func runCmds(in chan cmd) chan string {
 
 }
