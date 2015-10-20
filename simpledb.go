@@ -45,17 +45,17 @@ func main() {
 		scannee = os.Stdin
 	}
 
+	done := make(chan bool)
 	// Create scanner on input scannee
 	scanner := bufio.NewScanner(scannee)
 	// Generate lines of possible input
-	in := getScannerLines(scanner)
+	in := getScannerLines(scanner, done)
 	// Validate lines, generate commands
 	cmds := validateCmds(in)
 	// Actually run the commands
 	runCmds(cmds)
-	for cmd := range cmds {
-		fmt.Println(cmd)
-	}
+
+	<-done
 }
 
 // printGreeting prints a greeting when program starts
@@ -72,7 +72,7 @@ func printHelp() {
 // getScanner generates string arrays in a go routine and
 // passes the results out through a channel to continue down the
 // pipeline
-func getScannerLines(scanner *bufio.Scanner) chan []string {
+func getScannerLines(scanner *bufio.Scanner, done chan bool) chan []string {
 	out := make(chan []string)
 	go func() {
 		for scanner.Scan() {
@@ -82,6 +82,7 @@ func getScannerLines(scanner *bufio.Scanner) chan []string {
 			if cmd == "HELP" {
 				printHelp()
 			} else if cmd == "END" {
+				done <- true
 				break
 			} else {
 				out <- tokens
@@ -180,10 +181,35 @@ func validateCmds(in chan []string) chan cmd {
 // runCmds actually runs the commands.
 func runCmds(in chan cmd) chan string {
 	out := make(chan string)
-	var mydb db.Database
+	mydb := db.New()
 	go func() {
 		for cmd := range in {
-
+			switch cmd.command {
+			case "SET":
+				err := mydb.Set(cmd.name, cmd.val)
+				if err != nil {
+					fmt.Println("ERROR: Could not SET value")
+				}
+			case "GET":
+				val, err := mydb.Get(cmd.name)
+				if err != nil {
+					fmt.Println("NULL")
+				} else {
+					fmt.Println(val)
+				}
+			case "UNSET":
+				err := mydb.Unset(cmd.name)
+				if err != nil {
+					fmt.Println(err)
+				}
+			case "NUMEQUALTO":
+				val, _ := mydb.NumEqualTo(cmd.val)
+				fmt.Println(val)
+			case "BEGIN":
+			case "ROLLBACK":
+			case "COMMIT":
+			case "END":
+			}
 		}
 		close(out)
 	}()
